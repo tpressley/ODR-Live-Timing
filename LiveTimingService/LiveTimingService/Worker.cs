@@ -12,7 +12,7 @@ public class Worker : BackgroundService
         Options options,
         ILogger<Worker> logger)
     {
-        (_fileService, _logger) = (fileService, logger);
+        (_fileService, _logger, Options) = (fileService, logger, options);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
