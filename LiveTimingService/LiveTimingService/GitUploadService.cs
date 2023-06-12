@@ -30,7 +30,7 @@ public sealed class GitUploadService
 
                 }
                 var options = new PushOptions();
-                options.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = Options.Username, Password = Options.Password};
+                options.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = Options.Username, Password = Options.PersonalAccessToken };
                 repo.Network.Push(repo.Head, options);
             }
         }

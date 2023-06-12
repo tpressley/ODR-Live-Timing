@@ -9,6 +9,6 @@ public class Options
     public string AuthorEmail { get; set; }
     public string CommitMessage { get; set; }
     public int FrequencyInSeconds { get; set; }
-    public int Username { get; set; }
-    public int Password { get; set; }
+    public string Username { get; set; }
+    public string PersonalAccessToken { get; set; }
 }
