@@ -1,4 +1,6 @@
 ﻿using LibGit2Sharp;
+using LibGit2Sharp.Handlers;
+
 namespace ODR.LiveTiming.UploadService;
 
 public sealed class GitUploadService
@@ -16,28 +18,33 @@ public sealed class GitUploadService
             // Commit the file to the Git repository
             using (var repo = new Repository(Options.RepositoryPath))
             {
+                CredentialsHandler credentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = Options.Username, Password = Options.PersonalAccessToken };
+                
+                var fetchOptions = new FetchOptions { CredentialsProvider = credentialsProvider, };
+                var mergeOptions = new MergeOptions { FailOnConflict = true, IgnoreWhitespaceChange = true };
+                var pullOptions = new PullOptions() { FetchOptions = fetchOptions, MergeOptions = mergeOptions };
+                Signature signature = new Signature(Options.AuthorName, Options.AuthorEmail, DateTime.Now);
+                Commands.Pull(repo, signature, pullOptions);
                 Commands.Stage(repo, Options.DestinationFolderPath);
-                Signature author = new Signature(Options.AuthorName, Options.AuthorEmail, DateTime.Now);
-                Signature committer = author;
+                Signature committer = signature;
 
                 // Replace "Commit message" with your desired commit message
                 try
                 {
-                    repo.Commit(Options.CommitMessage, author, committer);
+                    repo.Commit(Options.CommitMessage, signature, committer);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-
+                    File.AppendAllText("log.txt", DateTime.Now + ex.Message  + ex.StackTrace + Environment.NewLine);
                 }
-                var options = new PushOptions();
-                options.CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials { Username = Options.Username, Password = Options.PersonalAccessToken };
-                repo.Network.Push(repo.Head, options);
+                var pushOptions = new PushOptions();
+                pushOptions.CredentialsProvider = credentialsProvider;
+                repo.Network.Push(repo.Head, pushOptions);
             }
         }
         catch (Exception ex)
         {
-            // Handle any exceptions that occur during the file move or commit process
-            Console.WriteLine("An error occurred: " + ex.Message);
+            throw;
         }
     }
 }

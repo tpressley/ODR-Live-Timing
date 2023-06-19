@@ -33,6 +33,7 @@ public class Worker : BackgroundService
         catch (Exception ex)
         {
             _logger.LogError(ex, "{Message}", ex.Message);
+            File.AppendAllText("log.txt", DateTime.Now + ex.Message + ex.StackTrace + Environment.NewLine);
 
             // Terminates this process and returns an exit code to the operating system.
             // This is required to avoid the 'BackgroundServiceExceptionBehavior', which
